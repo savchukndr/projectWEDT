@@ -20,24 +20,39 @@ class Group(Controler):
         self.resList = []
         for i in self.listNsplit:
             tmp = i.split(' ')
-            #tmp = Controler.isSpecNumOrSym(self, tmp)
             for j in tmp:
                 self.resList.append(j)
             #Controler.cleanList(self, self.resList)
-            Group.removeStopWords(self)
-        return self.resList
+        self.resListSplit = Group.removeNoneSym(self, self.resList) #self.resListSplit - with . ! ?
+        print('resListSplit =', self.resListSplit)
+        Group.removeStopWords(self)
+        return self.resList #without . ! ?
+
+    def removeNoneSym(self, lst):
+        tmp = []
+        for x in lst:
+            if not x:
+                continue
+            else:
+                tmp.append(x)
+        return tmp
 
     def removeStopWords(self):
-        for x in self.resList:
+        tmp = Group.removeNoneSym(self, self.resList)
+        listNotNone = list(map(lambda x: x[:-1] if x[-1] in ['.', '!', '?'] else x, tmp))
+        resList = []
+        for x in listNotNone:
             if x in self.stopWordsList:
-                self.resList.remove(x)
-            else:
                 continue
+            else:
+                resList.append(x)
+        self.resList = []
+        self.resList = resList
         return self.resList
 
     def groupSentence(self):
         sentenceStart = True
-        for x in self.resList:
+        for x in self.resListSplit:
             if sentenceStart:
                 termList = []
                 currentSentence = Sentence()
@@ -67,12 +82,15 @@ class Group(Controler):
 
 if __name__ == '__main__':
     I2 = Group()
-    # print(I2.readFromStopWords())
-    # print(I2.readFile())
-    # print('split text = ',I2.splitText())
-    # print('counter = ',I2.counter()) #MAP dict(without stopwords)
     I2.readFromStopWords()
     I2.readFile()
-    I2.splitText()
-    I2.counter()
-    I2.groupSentence()
+    print()
+    print('resList = ', I2.splitText())
+    print('MAP = ', I2.counter()) #MAP dict(without stopwords)
+    print('Reversed MAP =', I2.reverseDict())
+    print()
+    #I2.readFromStopWords()
+    #I2.readFile()
+    #I2.splitText()
+    #I2.counter()
+    #I2.groupSentence()

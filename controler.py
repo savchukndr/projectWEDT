@@ -87,7 +87,7 @@ class Controler:
     def reverseDict(self):
         ret = OrderedDict(sorted(self.D.items(), key=lambda x: x[0], reverse=False))
         self.ret = sorted(ret.items(), key=lambda x: x[1], reverse=True)
-        print(self.ret)
+        #print(self.ret)
         return self.ret
 
     # printing results
