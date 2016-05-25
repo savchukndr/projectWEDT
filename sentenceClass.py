@@ -1,8 +1,8 @@
 class Sentence:
     def __int__(self):
-        self.termList = []
+        self.sentenceList = []
 
 if __name__ == '__main__':
     I1 = Sentence()
     I1.termList = [1, 2, 3]
-    print('Term List =', I1.termList)
+    print('Term List =', I1.sentenceList)

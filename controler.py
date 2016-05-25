@@ -77,15 +77,15 @@ class Controler:
 
     # counting amount of words in text
     def counter(self):
-        self.D = {}
+        self.Dict = {}
         for x in self.resList:
             count = self.resList.count(x)
-            self.D[x] = count
-        return self.D
+            self.Dict[x] = count
+        return self.Dict
 
     # reverse dictionary from up to down
     def reverseDict(self):
-        ret = OrderedDict(sorted(self.D.items(), key=lambda x: x[0], reverse=False))
+        ret = OrderedDict(sorted(self.Dict.items(), key=lambda x: x[0], reverse=False))
         self.ret = sorted(ret.items(), key=lambda x: x[1], reverse=True)
         #print(self.ret)
         return self.ret

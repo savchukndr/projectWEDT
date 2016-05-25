@@ -57,9 +57,9 @@ class Group(Controler):
     def groupSentence(self):
         sentenceStart = True
         self.sentenceList = []
+        self.termList = []
         for x in self.resListSplitWithDots:
             if sentenceStart:
-                termList = []
                 currentSentence = Sentence()
                 sentenceStart = False
             if x.endswith('.') or x.endswith('!') or x.endswith('?'):
@@ -68,39 +68,53 @@ class Group(Controler):
                 x = x[:-1]
                 sentenceStart = True
                 currentTerm = Term(x, currentSentence)
-                termList.append(currentTerm)
-                currentSentence.termList = termList
-                self.currentSentence = currentSentence.termList
-                self.sentenceList.append(self.currentSentence)
+                self.termList.append(currentTerm)
+                #currentSentence.termList = termList
+                #sent.sentenceList.append(currentSentence)
+                #self.sentenceList1.append(currentSentence)
+                #self.currentSentence = currentSentence.termList
+                self.sentenceList.append(currentSentence)
                 print()
                 print('WORD = {0} | SENTENCE = {1}'.format(currentTerm.word, currentSentence))
                 print('Current Term = ', currentTerm)
-                #print()
-                #print('Term List =', termList)
-                print()
-                print('CURRENT SENTENCE = ',currentSentence)
-                print('CURRENT SENTENCE LIST= ', currentSentence.termList)
+                #print('CURRENT SENTENCE = ',currentSentence)
                 print()
                 continue
             currentTerm = Term(x, currentSentence)
+            self.termList.append(currentTerm)
             print()
             print('WORD = {0} | SENTENCE = {1}'.format(currentTerm.word, currentSentence))
             print('Current Term = ', currentTerm)
             print()
-            termList.append(currentTerm)
+            #termList.append(currentTerm)
 
     def remove30percent(self):
         indexToCut = round(len(self.ret) * 0.3)
         self.ret30percent = self.ret[:indexToCut]
+        self.ret30percentG = {}
+        for (x, y) in self.ret30percent:
+            self.ret30percentG[x] = y
+        print('GDict =', self.ret30percentG)
         return self.ret30percent
 
     def matrixOfApearanceWords(self):
         #print(self.sentenceList)
-        for y in self.sentenceList:
-            print()
-            for x in y:
-                print('Word = {0} | Sentence = {1}'.format(x.word, x.sentence))
-            '''
+        self.D = {}
+        self.tmp = {}
+        print('sentence LIST =', self.sentenceList)
+        print('term LIST =', self.termList)
+        #for (i, j) in self.ret:
+            #for y in self.sentenceList:
+                #print(y)
+                #for x in y:
+                    #k = x.sentence
+                #print(y)
+                    #print('Word = {0} | Sentence = {1}'.format(x.word, x.sentence))
+                    #if i == x.word and x.sentence == k:
+                    #    print('ok ', x.word)
+                    #else:
+                    #    print('ne ok', x.word)
+        '''
             for x in self.currentSentense:
                 print('word =', x.word)
                 print('sentence =', x.sentence)
@@ -121,7 +135,7 @@ if __name__ == '__main__':
     print('Reversed MAP =', I2.reverseDict())
     print()
 
-    print(I2.remove30percent())
+    print('G = ',I2.remove30percent())
 
     #I2.readFromStopWords()
     #I2.readFile()
