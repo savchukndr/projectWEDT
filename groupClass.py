@@ -92,44 +92,40 @@ class Group(Controler):
         print('G =', self.G)
         return self.ret30percent
 
+    def converListTuple(self, lst):
+        tmp = []
+        for (i, j) in lst:
+            tmp.append(i)
+        return tmp
+
     def matrixOfApearanceWords(self):
-        self.D = {}
-        self.tmp = {}
-        print('sentence LIST =', self.sentenceList)
-        print('term LIST =', self.termList)
-        for (i, j) in self.ret:
-            for (k, l) in self.ret30percent:
-                for x in self.sentenceList:
-                    print()
-                    print('s e n t e n c e =', x)
-                    print()
-                    for y in self.termList:
-                        print('t e r m w o r d =', y)
-                        if i == y.word:
-                            curSen = y.sentence
-                            if x == curSen:
-                                if i == k:
-                                    self.tmp[k] = 0
-                                else:
-                                    self.tmp[k] = 'ok'
-                    self.D[i] = self.tmp
-                            #self.tmp[y.word] = y.sentence
-        print('TMP =', self.tmp)
-        print('D =', self.D)
-                #for (i, j) in self.ret:
-                    #for (l, m) in self.ret30percent:
-
-
-            #for y in self.sentenceList:
-                #print(y)
-                #for x in y:
-                    #k = x.sentence
-                #print(y)
-                    #print('Word = {0} | Sentence = {1}'.format(x.word, x.sentence))
-                    #if i == x.word and x.sentence == k:
-                    #    print('ok ', x.word)
-                    #else:
-                    #    print('ne ok', x.word)
+        D = Group.converListTuple(self, self.ret)
+        G = Group.converListTuple(self, self.ret30percent)
+        tmp = []
+        res = []
+        # print('sentence LIST =', self.sentenceList)
+        # print('term LIST =', self.termList)
+        for i in range(len(D)):
+            listSenD = []
+            for z in self.termList:
+                if D[i] == z.word:
+                    listSenD.append(z.sentence)
+            listSenDSet = list(set(listSenD))
+            for k in range(len(G)):
+                count = 0
+                for y in self.termList:
+                    if y.sentence in listSenDSet:
+                        if y.word == D[i] and y.word == G[k]:
+                            break
+                        elif y.word == G[k]:
+                            count += 1
+                        else:
+                            continue
+                tmp.append(count)
+            res.append(tmp)
+            tmp = []
+        print('TMP =', tmp)
+        print('D =', res)
 
 
     def printMatrix(self):
@@ -138,6 +134,7 @@ class Group(Controler):
             for k in self.D.values():
                 for ky in k:
                     print(k[ky], end=' ')
+                break
             print()
 
 
