@@ -63,21 +63,17 @@ class Group(Controler):
                 currentSentence = Sentence()
                 sentenceStart = False
             if x.endswith('.') or x.endswith('!') or x.endswith('?'):
-                #if x == 'termword':
-                #    self.resListSplitWithDots.remove(x)
+                if x[:-1] == 'termword':
+                    sentenceStart = True
+                    continue
                 x = x[:-1]
                 sentenceStart = True
                 currentTerm = Term(x, currentSentence)
                 self.termList.append(currentTerm)
-                #currentSentence.termList = termList
-                #sent.sentenceList.append(currentSentence)
-                #self.sentenceList1.append(currentSentence)
-                #self.currentSentence = currentSentence.termList
                 self.sentenceList.append(currentSentence)
                 print()
                 print('WORD = {0} | SENTENCE = {1}'.format(currentTerm.word, currentSentence))
                 print('Current Term = ', currentTerm)
-                #print('CURRENT SENTENCE = ',currentSentence)
                 print()
                 continue
             currentTerm = Term(x, currentSentence)
@@ -86,24 +82,44 @@ class Group(Controler):
             print('WORD = {0} | SENTENCE = {1}'.format(currentTerm.word, currentSentence))
             print('Current Term = ', currentTerm)
             print()
-            #termList.append(currentTerm)
 
     def remove30percent(self):
         indexToCut = round(len(self.ret) * 0.3)
         self.ret30percent = self.ret[:indexToCut]
-        self.ret30percentG = {}
+        self.G = {}
         for (x, y) in self.ret30percent:
-            self.ret30percentG[x] = y
-        print('GDict =', self.ret30percentG)
+            self.G[x] = y
+        print('G =', self.G)
         return self.ret30percent
 
     def matrixOfApearanceWords(self):
-        #print(self.sentenceList)
         self.D = {}
         self.tmp = {}
         print('sentence LIST =', self.sentenceList)
         print('term LIST =', self.termList)
-        #for (i, j) in self.ret:
+        for (i, j) in self.ret:
+            for (k, l) in self.ret30percent:
+                for x in self.sentenceList:
+                    print()
+                    print('s e n t e n c e =', x)
+                    print()
+                    for y in self.termList:
+                        print('t e r m w o r d =', y)
+                        if i == y.word:
+                            curSen = y.sentence
+                            if x == curSen:
+                                if i == k:
+                                    self.tmp[k] = 0
+                                else:
+                                    self.tmp[k] = 'ok'
+                    self.D[i] = self.tmp
+                            #self.tmp[y.word] = y.sentence
+        print('TMP =', self.tmp)
+        print('D =', self.D)
+                #for (i, j) in self.ret:
+                    #for (l, m) in self.ret30percent:
+
+
             #for y in self.sentenceList:
                 #print(y)
                 #for x in y:
@@ -114,16 +130,16 @@ class Group(Controler):
                     #    print('ok ', x.word)
                     #else:
                     #    print('ne ok', x.word)
-        '''
-            for x in self.currentSentense:
-                print('word =', x.word)
-                print('sentence =', x.sentence)
-            for (x, y) in self.ret30percent:
-                if x in self.currentSentense:
-                    print('ok')
-                else:
-                    print('ne ok')
-            '''
+
+
+    def printMatrix(self):
+        for key in self.D.keys():
+            print("%10s " % key)
+            for k in self.D.values():
+                for ky in k:
+                    print(k[ky], end=' ')
+            print()
+
 
 if __name__ == '__main__':
     I2 = Group()
@@ -131,11 +147,11 @@ if __name__ == '__main__':
     I2.readFile()
     print()
     print('resList = ', I2.splitText())
-    print('MAP = ', I2.counter()) #MAP dict(without stopwords)
-    print('Reversed MAP =', I2.reverseDict())
+    print('D = ', I2.counter()) #MAP dict(without stopwords)
+    print('Sorted D =', I2.reverseDict())
     print()
 
-    print('G = ',I2.remove30percent())
+    print('Sorted G = ',I2.remove30percent())
 
     #I2.readFromStopWords()
     #I2.readFile()
@@ -143,3 +159,4 @@ if __name__ == '__main__':
     #I2.counter()
     I2.groupSentence()
     I2.matrixOfApearanceWords()
+    I2.printMatrix()

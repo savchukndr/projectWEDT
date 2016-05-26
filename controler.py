@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+
 class Controler:
     def __init__(self, file):
         self.file = file
@@ -11,7 +12,7 @@ class Controler:
         f.close()
         return self.string
 
-    #write into file
+    # write into file
     def writeFile(self):
         f = open('results.txt', 'w')
         for (key, value) in self.ret:
@@ -60,7 +61,7 @@ class Controler:
             s = ''.join(e for e in s if e not in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
             res.append(s)
             Controler.cleanList(self, res)
-        #print(res)
+        # print(res)
         return res
 
     # splting text frome file into single words in list
@@ -87,7 +88,7 @@ class Controler:
     def reverseDict(self):
         ret = OrderedDict(sorted(self.Dict.items(), key=lambda x: x[0], reverse=False))
         self.ret = sorted(ret.items(), key=lambda x: x[1], reverse=True)
-        #print(self.ret)
+        # print(self.ret)
         return self.ret
 
     # printing results
@@ -113,6 +114,3 @@ if __name__ == '__main__':
     I1.counter()
     I1.reverseDict()
     I1.outPut()
-
-
-
