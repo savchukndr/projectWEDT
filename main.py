@@ -22,8 +22,8 @@ while True:
             file.writeFile()
             continue
         elif inp == '2':
-           file.outPut()
-           continue
+            file.outPut()
+            continue
         else:
             print('Wrong input!' * 3)
     if desizion == '0':
