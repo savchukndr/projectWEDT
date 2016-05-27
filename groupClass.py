@@ -2,6 +2,7 @@ from controler import Controler
 from termClass import Term
 from sentenceClass import Sentence
 
+
 class Group(Controler):
     def __init__(self):
         Controler.__init__(self, file='text.txt')
@@ -22,11 +23,11 @@ class Group(Controler):
             tmp = i.split(' ')
             for j in tmp:
                 self.resList.append(j)
-            #Controler.cleanList(self, self.resList)
-        self.resListSplit = Group.removeNoneSym(self, self.resList) #self.resListSplit - with . ! ?
-        print('resListSplit =', self.resListSplit)
+                # Controler.cleanList(self, self.resList)
+        self.resListSplit = Group.removeNoneSym(self, self.resList)  # self.resListSplit - with . ! ?
+        # print('resListSplit =', self.resListSplit)
         Group.removeStopWords(self)
-        return self.resList #without . ! ?
+        return self.resList  # without . ! ?
 
     def removeNoneSym(self, lst):
         tmp = []
@@ -48,8 +49,9 @@ class Group(Controler):
             else:
                 resList.append(x)
         self.resListSplitWithDots = resList
-        print('resListSplitWithDots =', self.resListSplitWithDots)
-        resListWithoutDots = list(map(lambda x: x[:-1] if x[-1] in ['.', '!', '?'] else x, resList)) #Problem with 'jest?'
+        # print('resListSplitWithDots =', self.resListSplitWithDots)
+        resListWithoutDots = list(
+            map(lambda x: x[:-1] if x[-1] in ['.', '!', '?'] else x, resList))  # Problem with 'jest?'
         self.resList = []
         self.resList = resListWithoutDots
         return self.resList
@@ -70,18 +72,18 @@ class Group(Controler):
                 sentenceStart = True
                 currentTerm = Term(x, currentSentence)
                 self.termList.append(currentTerm)
-                self.sentenceList.append(currentSentence)
-                print()
-                print('WORD = {0} | SENTENCE = {1}'.format(currentTerm.word, currentSentence))
-                print('Current Term = ', currentTerm)
-                print()
+                # self.sentenceList.append(currentSentence)
+                # print()
+                # print('WORD = {0} | SENTENCE = {1}'.format(currentTerm.word, currentSentence))
+                # print('Current Term = ', currentTerm)
+                # print()
                 continue
             currentTerm = Term(x, currentSentence)
             self.termList.append(currentTerm)
-            print()
-            print('WORD = {0} | SENTENCE = {1}'.format(currentTerm.word, currentSentence))
-            print('Current Term = ', currentTerm)
-            print()
+            # print()
+            # print('WORD = {0} | SENTENCE = {1}'.format(currentTerm.word, currentSentence))
+            # print('Current Term = ', currentTerm)
+            # print()
 
     def remove30percent(self):
         indexToCut = round(len(self.ret) * 0.3)
@@ -89,7 +91,7 @@ class Group(Controler):
         self.G = {}
         for (x, y) in self.ret30percent:
             self.G[x] = y
-        print('G =', self.G)
+        # print('G =', self.G)
         return self.ret30percent
 
     def converListTuple(self, lst):
@@ -103,8 +105,6 @@ class Group(Controler):
         self.G = Group.converListTuple(self, self.ret30percent)
         tmp = []
         self.res = []
-        # print('sentence LIST =', self.sentenceList)
-        # print('term LIST =', self.termList)
         for i in range(len(self.D)):
             listSenD = []
             for z in self.termList:
@@ -124,7 +124,6 @@ class Group(Controler):
                 tmp.append(count)
             self.res.append(tmp)
             tmp = []
-
 
     def printMatrix(self):
         tmp = self.D
@@ -155,23 +154,25 @@ class Group(Controler):
             print()
 
 
-
 if __name__ == '__main__':
     I2 = Group()
     I2.readFromStopWords()
     I2.readFile()
+    # print()
+    # print('resList = ', I2.splitText())
+    I2.splitText()
+    # print('D = ', I2.counter())  # MAP dict(without stopwords)
+    I2.counter()
     print()
-    print('resList = ', I2.splitText())
-    print('D = ', I2.counter()) #MAP dict(without stopwords)
     print('Sorted D =', I2.reverseDict())
     print()
+    print('Sorted G = ', I2.remove30percent())
+    print()
 
-    print('Sorted G = ',I2.remove30percent())
-
-    #I2.readFromStopWords()
-    #I2.readFile()
-    #I2.splitText()
-    #I2.counter()
+    # I2.readFromStopWords()
+    # I2.readFile()
+    # I2.splitText()
+    # I2.counter()
     I2.groupSentence()
     I2.matrixOfApearanceWords()
     I2.printMatrix()
