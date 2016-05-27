@@ -99,43 +99,61 @@ class Group(Controler):
         return tmp
 
     def matrixOfApearanceWords(self):
-        D = Group.converListTuple(self, self.ret)
-        G = Group.converListTuple(self, self.ret30percent)
+        self.D = Group.converListTuple(self, self.ret)
+        self.G = Group.converListTuple(self, self.ret30percent)
         tmp = []
-        res = []
+        self.res = []
         # print('sentence LIST =', self.sentenceList)
         # print('term LIST =', self.termList)
-        for i in range(len(D)):
+        for i in range(len(self.D)):
             listSenD = []
             for z in self.termList:
-                if D[i] == z.word:
+                if self.D[i] == z.word:
                     listSenD.append(z.sentence)
             listSenDSet = list(set(listSenD))
-            for k in range(len(G)):
+            for k in range(len(self.G)):
                 count = 0
                 for y in self.termList:
                     if y.sentence in listSenDSet:
-                        if y.word == D[i] and y.word == G[k]:
+                        if y.word == self.D[i] and y.word == self.G[k]:
                             break
-                        elif y.word == G[k]:
+                        elif y.word == self.G[k]:
                             count += 1
                         else:
                             continue
                 tmp.append(count)
-            res.append(tmp)
+            self.res.append(tmp)
             tmp = []
-        print('TMP =', tmp)
-        print('D =', res)
 
 
     def printMatrix(self):
-        for key in self.D.keys():
-            print("%10s " % key)
-            for k in self.D.values():
-                for ky in k:
-                    print(k[ky], end=' ')
-                break
+        tmp = self.D
+        DConv = []
+        for z in tmp:
+            if len(z) < 20:
+                size = 20 - len(z)
+                z += ' ' * size
+                DConv.append(z)
+            elif len(z) > 20:
+                size = len(z) - 20
+                z = z[:-size]
+                DConv.append(z)
+            else:
+                DConv.append(z)
+                continue
+        for x in range(len(self.G)):
+            if x == 0:
+                print(' ' * 25, self.G[x], end='')
+            else:
+                print(' ' * 5, self.G[x], end='')
+        print()
+        for z in self.res:
+            print(DConv[0], end='')
+            for k in z:
+                print('      ', k, end='    ')
+            DConv = DConv[1:]
             print()
+
 
 
 if __name__ == '__main__':
