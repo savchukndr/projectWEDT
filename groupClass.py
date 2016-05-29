@@ -1,16 +1,18 @@
-from controler import Controler
-from termClass import Term
-from sentenceClass import Sentence
-from scipy.stats import chisquare as chisq
-import numpy as np
 import warnings
+import numpy as np
+from numpy.linalg import norm
+from scipy.stats import chisquare as chisq
+from scipy.stats import entropy
+from controler import Controler
+from sentence.sentenceClass import Sentence
+from sentence.termClass import Term
 
 
 class Group(Controler):
     def __init__(self):
-        Controler.__init__(self, file='text.txt')
+        Controler.__init__(self, file='textfiles\\text.txt')
 
-    def readFromStopWords(self, file='stopwords.txt'):
+    def readFromStopWords(self, file='textfiles\stopwords.txt'):
         f = open(file).read()
         stopWordsList = f.split(' ')
         self.stopWordsList = []
@@ -191,6 +193,12 @@ class Group(Controler):
             print('Statistics = {0} | PValue = {1}'.format(statistics, pvalue))
         print()
         print('scipy.stats.chisquare OUTPUT =', chi2)
+
+    def JSD(self, P, Q):
+        _P = P / norm(P, ord=1)
+        _Q = Q / norm(Q, ord=1)
+        _M = 0.5 * (_P + _Q)
+        return 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
 
 
 if __name__ == '__main__':
