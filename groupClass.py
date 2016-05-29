@@ -1,6 +1,9 @@
 from controler import Controler
 from termClass import Term
 from sentenceClass import Sentence
+from scipy.stats import chisquare as chisq
+import numpy as np
+import warnings
 
 
 class Group(Controler):
@@ -51,7 +54,7 @@ class Group(Controler):
         self.resListSplitWithDots = resList
         # print('resListSplitWithDots =', self.resListSplitWithDots)
         resListWithoutDots = list(
-            map(lambda x: x[:-1] if x[-1] in ['.', '!', '?'] else x, resList))  # Problem with 'jest?'
+            map(lambda x: x[:-1] if x[-1] in ['.', '!', '?', ','] else x, resList))  # Problem with 'jest?'
         self.resList = []
         self.resList = resListWithoutDots
         return self.resList
@@ -88,9 +91,9 @@ class Group(Controler):
     def remove30percent(self):
         indexToCut = round(len(self.ret) * 0.3)
         self.ret30percent = self.ret[:indexToCut]
-        self.G = {}
-        for (x, y) in self.ret30percent:
-            self.G[x] = y
+        # self.G = {}
+        # for (x, y) in self.ret30percent:
+        #     self.G[x] = y
         # print('G =', self.G)
         return self.ret30percent
 
@@ -101,23 +104,25 @@ class Group(Controler):
         return tmp
 
     def matrixOfApearanceWords(self):
-        self.D = Group.converListTuple(self, self.ret)
-        self.G = Group.converListTuple(self, self.ret30percent)
+        self.Dw = Group.converListTuple(self, self.ret)
+        self.Gw = Group.converListTuple(self, self.ret30percent)
+        # print('self.D =', self.D)
+        # print('self.G =', self.G)
         tmp = []
         self.res = []
-        for i in range(len(self.D)):
+        for i in range(len(self.Dw)):
             listSenD = []
             for z in self.termList:
-                if self.D[i] == z.word:
+                if self.Dw[i] == z.word:
                     listSenD.append(z.sentence)
             listSenDSet = list(set(listSenD))
-            for k in range(len(self.G)):
+            for k in range(len(self.Gw)):
                 count = 0
                 for y in self.termList:
                     if y.sentence in listSenDSet:
-                        if y.word == self.D[i] and y.word == self.G[k]:
+                        if y.word == self.Dw[i] and y.word == self.Gw[k]:
                             break
-                        elif y.word == self.G[k]:
+                        elif y.word == self.Gw[k]:
                             count += 1
                         else:
                             continue
@@ -126,7 +131,7 @@ class Group(Controler):
             tmp = []
 
     def printMatrix(self):
-        tmp = self.D
+        tmp = self.Dw
         DConv = []
         for z in tmp:
             if len(z) < 20:
@@ -140,11 +145,11 @@ class Group(Controler):
             else:
                 DConv.append(z)
                 continue
-        for x in range(len(self.G)):
+        for x in range(len(self.Gw)):
             if x == 0:
-                print(' ' * 25, self.G[x], end='')
+                print(' ' * 25, self.Gw[x], end='')
             else:
-                print(' ' * 5, self.G[x], end='')
+                print(' ' * 5, self.Gw[x], end='')
         print()
         for z in self.res:
             print(DConv[0], end='')
@@ -152,6 +157,40 @@ class Group(Controler):
                 print('      ', k, end='    ')
             DConv = DConv[1:]
             print()
+
+    def formatPowerRes(self, str, symb):
+        tmp = ''
+        for x in str:
+            if x != symb:
+                tmp += x
+            elif x == symb:
+                break
+            else:
+                continue
+        return float(tmp)
+
+    def chiKwadrat(self):
+        self.Dc = []
+        for (i, j) in self.ret30percent:
+            self.Dc.append(j)
+        print()
+        print('D =', self.res)
+        print('Dc =', self.Dc)
+        print()
+        for x in range(len(self.res)):
+            observed = np.array(self.res[x])
+            expected = np.array(self.Dc) * np.sum(observed)
+            warnings.simplefilter('error', RuntimeWarning) # Filter RuntimeWarning when chi2 called
+            try:
+                chi2 = str(chisq(observed, expected))
+            except RuntimeWarning:
+                chi2 = 'Power_divergenceResult(statistic=0, pvalue=0)'
+            index = chi2.index(',')
+            statistics = Group.formatPowerRes(self, chi2[33:], ',') # Statistics value from Power_divergenceResult (float)
+            pvalue = Group.formatPowerRes(self, chi2[index + 9:], ')') # pvalue value from Power_divergenceResult (float)
+            print('Statistics = {0} | PValue = {1}'.format(statistics, pvalue))
+        print()
+        print('scipy.stats.chisquare OUTPUT =', chi2)
 
 
 if __name__ == '__main__':
@@ -176,3 +215,4 @@ if __name__ == '__main__':
     I2.groupSentence()
     I2.matrixOfApearanceWords()
     I2.printMatrix()
+    I2.chiKwadrat()
