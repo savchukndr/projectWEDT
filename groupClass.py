@@ -196,20 +196,37 @@ class Group(Controler):
         print()
         print('scipy.stats.chisquare OUTPUT =', chi2)
 
-    def JSD(self):
-        _P = self.Dc / norm(self.Dc, ord=1)
-        for x in range(len(self.res)):
-            if sum(self.res[x]) == 0:
+    def JSD(self, P, Q):
+        _P = P / norm(P, ord=1)
+        _Q = Q / norm(Q, ord=1)
+        _M = 0.5 * (_P + _Q)
+        res = 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
+        return res
+
+    def outPutJSDval(self):
+        countStep = 0
+        tmp = self.res
+        for x in self.res:
+            if sum(x) == 0:
                 res = 0
-                print('step = ', x)
+                countStep += 1
+                print('step = ', countStep)
                 print(res)
                 continue
             else:
-                _Q = self.res[x] / norm(self.res[x], ord=1)
-                _M = 0.5 * (_P + _Q)
-                res = 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
-                print('step = ', x)
-                print(res)
+                tmp = tmp[1:]
+                for y in tmp:
+                    if sum(y) == 0:
+                        res = 0
+                        countStep += 1
+                        print('step = ', countStep)
+                        print(res)
+                        continue
+                    else:
+                        res = Group.JSD(self, x, y)
+                        countStep += 1
+                        print('step = ', countStep)
+                        print(res)
 
 
 if __name__ == '__main__':
@@ -235,4 +252,4 @@ if __name__ == '__main__':
     I2.matrixOfApearanceWords()
     I2.printMatrix()
     I2.chiKwadrat()
-    I2.JSD()
+    I2.outPutJSDval()
