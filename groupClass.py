@@ -182,14 +182,16 @@ class Group(Controler):
         for x in range(len(self.res)):
             observed = np.array(self.res[x])
             expected = np.array(self.Dc) * np.sum(observed)
-            warnings.simplefilter('error', RuntimeWarning) # Filter RuntimeWarning when chi2 called
+            warnings.simplefilter('error', RuntimeWarning)  # Filter RuntimeWarning when chi2 called
             try:
                 chi2 = str(chisq(observed, expected))
             except RuntimeWarning:
                 chi2 = 'Power_divergenceResult(statistic=0, pvalue=0)'
             index = chi2.index(',')
-            statistics = Group.formatPowerRes(self, chi2[33:], ',') # Statistics value from Power_divergenceResult (float)
-            pvalue = Group.formatPowerRes(self, chi2[index + 9:], ')') # pvalue value from Power_divergenceResult (float)
+            statistics = Group.formatPowerRes(self, chi2[33:],
+                                              ',')  # Statistics value from Power_divergenceResult (float)
+            pvalue = Group.formatPowerRes(self, chi2[index + 9:],
+                                          ')')  # pvalue value from Power_divergenceResult (float)
             print('Statistics = {0} | PValue = {1}'.format(statistics, pvalue))
         print()
         print('scipy.stats.chisquare OUTPUT =', chi2)
@@ -197,11 +199,17 @@ class Group(Controler):
     def JSD(self):
         _P = self.Dc / norm(self.Dc, ord=1)
         for x in range(len(self.res)):
-            _Q = self.res[x] / norm(self.res[x], ord=1)
-            _M = 0.5 * (_P + _Q)
-            res = 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
-            print('step = ',x)
-            print(res)
+            if sum(self.res[x]) == 0:
+                res = 0
+                print('step = ', x)
+                print(res)
+                continue
+            else:
+                _Q = self.res[x] / norm(self.res[x], ord=1)
+                _M = 0.5 * (_P + _Q)
+                res = 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
+                print('step = ', x)
+                print(res)
 
 
 if __name__ == '__main__':
