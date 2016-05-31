@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from encodings import utf_8
 
 
 class Controler:
@@ -7,7 +8,7 @@ class Controler:
 
     # read from file
     def readFile(self):
-        f = open(self.file)
+        f = open(self.file, encoding=utf_8.getregentry().name)
         self.string = f.read()
         f.close()
         return self.string
