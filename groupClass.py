@@ -1,4 +1,6 @@
 import warnings
+from encodings import utf_8
+
 import numpy as np
 from numpy.linalg import norm
 from scipy.stats import chisquare as chisq
@@ -13,11 +15,8 @@ class Group(Controler):
         Controler.__init__(self, file='textfiles\\text.txt')
 
     def readFromStopWords(self, file='textfiles\stopwords.txt'):
-        f = open(file).read()
-        stopWordsList = f.split(' ')
-        self.stopWordsList = []
-        for x in stopWordsList:
-            self.stopWordsList.append(u'{0}'.format(x[:-1]))
+        f = open(file, encoding=utf_8.getregentry().name).read()
+        self.stopWordsList = f.split('\n')
         return self.stopWordsList
 
     def splitText(self):
