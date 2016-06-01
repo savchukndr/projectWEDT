@@ -13,6 +13,8 @@ from sentence.termClass import Term
 class Group(Controler):
     def __init__(self):
         Controler.__init__(self, file='textfiles\\text.txt')
+        self.resList = None  # co to jest
+        self.stopWordsList = None
 
     def readFromStopWords(self, file='textfiles\stopwords.txt'):
         f = open(file, encoding=utf_8.getregentry().name)
@@ -48,8 +50,8 @@ class Group(Controler):
         resList = []
         for x in tmp:
             if x[-1] in ['.', '!', '?'] and x[:-1] in self.stopWordsList:
-                x = 'termword' + x[-1]
-            if x in self.stopWordsList:
+                resList[-1] += x[-1]
+            elif x in self.stopWordsList:
                 continue
             else:
                 resList.append(x)
@@ -70,9 +72,6 @@ class Group(Controler):
                 currentSentence = Sentence()
                 sentenceStart = False
             if x.endswith('.') or x.endswith('!') or x.endswith('?'):
-                if x[:-1] == 'termword':
-                    sentenceStart = True
-                    continue
                 x = x[:-1]
                 sentenceStart = True
                 currentTerm = Term(x, currentSentence)
@@ -164,29 +163,23 @@ class Group(Controler):
         return float(tmp)
 
     def chiKwadrat(self):
-        self.Dc = []
+        Dc = []
         for (i, j) in self.ret30percent:
-            self.Dc.append(j)
+            Dc.append(j)
         print()
         print('D =', self.res)
-        print('Dc =', self.Dc)
+        print('Dc =', Dc)
         print()
         for x in range(len(self.res)):
             observed = np.array(self.res[x])
-            expected = np.array(self.Dc) * np.sum(observed)
+            expected = np.array(Dc) * np.sum(observed)
             warnings.simplefilter('error', RuntimeWarning)  # Filter RuntimeWarning when chi2 called
             try:
-                chi2 = str(chisq(observed, expected))
+                chi2 = chisq(observed, expected)
+                print('Statistics = {0} | PValue = {1}'.format(chi2.statistic, chi2.pvalue))
             except RuntimeWarning:
-                chi2 = 'Power_divergenceResult(statistic=0, pvalue=0)'
-            index = chi2.index(',')
-            statistics = Group.formatPowerRes(self, chi2[33:],
-                                              ',')  # Statistics value from Power_divergenceResult (float)
-            pvalue = Group.formatPowerRes(self, chi2[index + 9:],
-                                          ')')  # pvalue value from Power_divergenceResult (float)
-            print('Statistics = {0} | PValue = {1}'.format(statistics, pvalue))
+                print('Statistics = {0} | PValue = {1}'.format(0, 0))
         print()
-        print('scipy.stats.chisquare OUTPUT =', chi2)
 
     def JSD(self, P, Q):
         _P = P / norm(P, ord=1)
