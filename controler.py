@@ -4,10 +4,10 @@ from encodings import utf_8
 
 class Controler:
     def __init__(self, file):
-        self.Dict = {}
+        self.Dict = {} # Dictionary [key=word:value=count]
         self.file = file
         self.string = None # string from text.txt
-        self.resList = []
+        self.resList = None #List without dots and etc. and without stopWords
         self.ret = None # Dictionary D
 
     # read from file
