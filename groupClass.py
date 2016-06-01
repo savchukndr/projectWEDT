@@ -1,6 +1,5 @@
 import warnings
 from encodings import utf_8
-
 import numpy as np
 from numpy.linalg import norm
 from scipy.stats import chisquare as chisq
@@ -11,9 +10,10 @@ from sentence.termClass import Term
 
 
 class Group(Controler):
+    '''Class Group '''
     def __init__(self):
         Controler.__init__(self, file='textfiles\\text.txt')
-        self.resList = None  #List without dots and etc. and without stopWords
+        self.resList = None  # List without dots and etc. and without stopWords
         self.stopWordsList = None # StopWord list
         self.resListSplit = None # List with dots and etc. and with stopWords
         self.sentenceList = [] # Sentence list
@@ -25,11 +25,13 @@ class Group(Controler):
         self.res = None # Matrix
 
     def readFromStopWords(self, file='textfiles\stopwords.txt'):
+        """Reading words from stopwords.txt"""
         f = open(file, encoding=utf_8.getregentry().name)
         self.stopWordsList = f.read().split('\n')
         f.close()
 
     def splitText(self):
+        """Split string, for separated words"""
         string = self.string.lower()
         self.resList = string.split()
         self.resListSplit = Group.removeNoneSym(self.resList)
@@ -37,6 +39,7 @@ class Group(Controler):
 
     @staticmethod
     def removeNoneSym(lst):
+        """Remove None symbols from list"""
         tmp = []
         for x in lst:
             if not x:
@@ -46,6 +49,7 @@ class Group(Controler):
         return tmp
 
     def removeStopWords(self):
+        """Remove StopWords from list"""
         tmp = Group.removeNoneSym(self.resList)
         resList = []
         for x in tmp:
@@ -60,6 +64,7 @@ class Group(Controler):
         self.resList = resListWithoutDots
 
     def groupSentence(self):
+        """Devide words for terms and then for sentences"""
         sentenceStart = True
         for x in self.resListSplitWithDots:
             if sentenceStart:
@@ -75,17 +80,20 @@ class Group(Controler):
             self.termList.append(currentTerm)
 
     def remove30percent(self):
+        """Create map G == 30% from D"""
         indexToCut = round(len(self.ret) * 0.3)
         self.ret30percent = self.ret[:indexToCut]
 
     @staticmethod
     def converListTuple(lst):
+        """Converting list [('word1', count1),('word2': count2), ...] into ['word1', 'word2']"""
         tmp = []
         for (i, j) in lst:
             tmp.append(i)
         return tmp
 
     def matrixOfApearanceWords(self):
+        """Creating matrix"""
         self.Dw = Group.converListTuple(self.ret)
         self.Gw = Group.converListTuple(self.ret30percent)
         tmp = []
@@ -111,6 +119,7 @@ class Group(Controler):
             tmp = []
 
     def printMatrix(self):
+        """Output matrix"""
         firstColumnWidth = 25
         cellWidth = 10
         firstColumnFormat = '{0:' + str(firstColumnWidth) + '.' + str(firstColumnWidth) + 's}'
@@ -131,6 +140,7 @@ class Group(Controler):
             print()
 
     def chiKwadrat(self):
+        """Chi-square function"""
         Dc = [] # Dc = [2, 2, 2] from D = [('konczy', 2), ('sie', 2), ('zdanie', 2)]
         for (i, j) in self.ret30percent:
             Dc.append(j)
@@ -151,6 +161,7 @@ class Group(Controler):
 
     @staticmethod
     def JSD(P, Q):
+        """Jensen-Shannon divergence"""
         _P = P / norm(P, ord=1)
         _Q = Q / norm(Q, ord=1)
         _M = 0.5 * (_P + _Q)
@@ -158,6 +169,7 @@ class Group(Controler):
         return res
 
     def outPutJSDval(self):
+        """Output Jensen-Shannon divergence function results"""
         countStep = 0
         tmp = self.res
         for x in self.res:
@@ -184,6 +196,7 @@ class Group(Controler):
 
 
 if __name__ == '__main__':
+    """Test data for groupClass.py"""
     I2 = Group()
     I2.readFromStopWords()
     I2.readFile()
