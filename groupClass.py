@@ -15,8 +15,9 @@ class Group(Controler):
         Controler.__init__(self, file='textfiles\\text.txt')
 
     def readFromStopWords(self, file='textfiles\stopwords.txt'):
-        f = open(file, encoding=utf_8.getregentry().name).read()
-        self.stopWordsList = f.split('\n')
+        f = open(file, encoding=utf_8.getregentry().name)
+        self.stopWordsList = f.read().split('\n')
+        f.close()
         return self.stopWordsList
 
     def splitText(self):
