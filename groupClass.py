@@ -13,29 +13,27 @@ from sentence.termClass import Term
 class Group(Controler):
     def __init__(self):
         Controler.__init__(self, file='textfiles\\text.txt')
-        self.resList = None  # co to jest
-        self.stopWordsList = None
-        self.resListSplit = None
-        self.sentenceList = []
-        self.termList = []
+        self.resList = None  #List without dots and etc. and without stopWords
+        self.stopWordsList = None # StopWord list
+        self.resListSplit = None # List with dots and etc. and with stopWords
+        self.sentenceList = [] # Sentence list
+        self.termList = [] # Term list
         self.ret30percent = None # Dictionary G
         self.resListSplitWithDots = None # List with dots and etc.
-        self.Dw = None # Dw = [2, 2, 2, 1, 1] from D = [('konczy', 2), ('sie', 2), ('zdanie', 2), ('drugie', 1), ('pierwsze', 1), ('zzz', 1)]
-        self.Gw = None
-        self.res = None
+        self.Dw = None # Dw = ['konczy', 'sie', 'zdanie'] from D = [('konczy', 2), ('sie', 2), ('zdanie', 2)]
+        self.Gw = None # Thesame like Dw
+        self.res = None # Matrix
 
     def readFromStopWords(self, file='textfiles\stopwords.txt'):
         f = open(file, encoding=utf_8.getregentry().name)
         self.stopWordsList = f.read().split('\n')
         f.close()
-        return self.stopWordsList
 
     def splitText(self):
         string = self.string.lower()
-        self.resList= string.split()
+        self.resList = string.split()
         self.resListSplit = Group.removeNoneSym(self.resList)
         Group.removeStopWords(self)
-        print('resList =', self.resList)
 
     @staticmethod
     def removeNoneSym(lst):
@@ -133,7 +131,7 @@ class Group(Controler):
             print()
 
     def chiKwadrat(self):
-        Dc = []
+        Dc = [] # Dc = [2, 2, 2] from D = [('konczy', 2), ('sie', 2), ('zdanie', 2)]
         for (i, j) in self.ret30percent:
             Dc.append(j)
         print()
@@ -192,7 +190,8 @@ if __name__ == '__main__':
     I2.splitText()
     I2.counter()
     print()
-    print('Sorted D =', I2.reverseDict())
+    I2.reverseDict()
+    print('Sorted D =', I2.ret)
     print()
     I2.remove30percent()
     print('Sorted G = ', I2.ret30percent)

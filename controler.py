@@ -6,7 +6,7 @@ class Controler:
     def __init__(self, file):
         self.Dict = {}
         self.file = file
-        self.string = None
+        self.string = None # string from text.txt
         self.resList = []
         self.ret = None # Dictionary D
 
@@ -15,7 +15,6 @@ class Controler:
         f = open(self.file, encoding=utf_8.getregentry().name)
         self.string = f.read()
         f.close()
-        return self.string
 
     # write into file
     def writeFile(self):
@@ -32,14 +31,11 @@ class Controler:
         for x in self.resList:
             count = self.resList.count(x)
             self.Dict[x] = count
-        return self.Dict
 
     # reverse dictionary from up to down
     def reverseDict(self):
         ret = OrderedDict(sorted(self.Dict.items(), key=lambda x: x[0], reverse=False))
         self.ret = sorted(ret.items(), key=lambda x: x[1], reverse=True)
-        # print(self.ret)
-        return self.ret
 
 if __name__ == '__main__':
     I1 = Controler('textfiles\\text.txt')
