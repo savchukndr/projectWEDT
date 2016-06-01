@@ -1,6 +1,6 @@
 from controler import Controler
 
-file = Controler('text.txt')
+file = Controler('textfiles\\text.txt')
 file.readFile()
 file.splitText()
 file.counter()
