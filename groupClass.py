@@ -133,31 +133,23 @@ class Group(Controler):
             tmp = []
 
     def printMatrix(self):
-        tmp = self.Dw
-        DConv = []
-        for z in tmp:
-            if len(z) < 20:
-                size = 20 - len(z)
-                z += ' ' * size
-                DConv.append(z)
-            elif len(z) > 20:
-                size = len(z) - 20
-                z = z[:-size]
-                DConv.append(z)
-            else:
-                DConv.append(z)
-                continue
+        firstColumnWidth = 25
+        cellWidth = 10
+        firstColumnFormat = '{0:' + str(firstColumnWidth) + '.' + str(firstColumnWidth) + 's}'
+        cellFormat = ' {0:' + str(cellWidth) + '.' + str(cellWidth) + 's}'
+
+        # matrix header
+        print(firstColumnFormat.format(''), end='')
         for x in range(len(self.Gw)):
-            if x == 0:
-                print(' ' * 25, self.Gw[x], end='')
-            else:
-                print(' ' * 5, self.Gw[x], end='')
-        print()
-        for z in self.res:
-            print(DConv[0], end='')
-            for k in z:
-                print('      ', k, end='    ')
-            DConv = DConv[1:]
+            print(cellFormat.format(self.Gw[x]), end='')
+        print()  # new line
+
+        # matrix body
+        for i in range(len(self.Dw)):
+            print(firstColumnFormat.format(self.Dw[i]), end='')
+            row = self.res[i]
+            for cell in row:
+                print(cellFormat.format(str(cell)), end='')
             print()
 
     def formatPowerRes(self, str, symb):
