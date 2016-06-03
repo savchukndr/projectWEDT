@@ -1,6 +1,7 @@
 import subprocess
 from encodings import utf_8
 
+import sys
 from nltk.stem.porter import PorterStemmer
 from numpy.linalg import norm
 from scipy.stats import entropy
@@ -13,9 +14,9 @@ from domain.Term import Term
 class Group(Controler):
     """Class Group"""
 
-    def __init__(self, language='pl'):
-        Controler.__init__(self, file='textfiles\\text.txt')
-        self.language = language
+    def __init__(self, file, lang='pl'):
+        Controler.__init__(self, file=file)
+        self.language = lang
         self.special_characters = ['.', '!', '?', ',', '"', '\'', ')', '(', '-', '–', ':', ';']
         self.end_of_sentence_characters = ['.', '!', '?']
         self.resList = None  # List without dots and etc. and without stopWords
@@ -31,10 +32,12 @@ class Group(Controler):
         self.coocurenceMatrix = None  # Matrix
         self.termSentencesTotalSize = []  # counts all terms in sentence where a term occurs
         self.chi2Values = []  # list of tuples (word, values of chi squared)
-        self.porterStemmer = PorterStemmer()  # stemmer for english
-        self.morfeuszProcess = subprocess.Popen(['morfeusz_bin\morfeusz_analyzer.exe', '-c', 'UTF8'],
-                                                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                                bufsize=1)
+        if language == 'pl':
+            self.morfeuszProcess = subprocess.Popen(['morfeusz_bin\morfeusz_analyzer.exe', '-c', 'UTF8'],
+                                                    stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                                    bufsize=1)
+        else:
+            self.porterStemmer = PorterStemmer()  # stemmer for english
 
     def readFromStopWords(self):
         """Reading words from stopwords.txt"""
@@ -280,7 +283,7 @@ class Group(Controler):
                         print('step = ', countStep)
                         print(res)
 
-    def printResults(self):
+    def printResults(self, keywordsCount: int):
         print("=" * 80)
         print("{0:>3.3s}  {1:20.20s} {2:>12.12s} {3:>10.10s}".format(
             'Lp',
@@ -289,7 +292,7 @@ class Group(Controler):
             'chi^2'
         ))
         print("=" * 80)
-        for i in range(20):
+        for i in range(keywordsCount):
             print("{0:3d}. {1:20.20s} {2:12d} {3:10.2f}".format(
                 i + 1,
                 self.chi2Values[i][0],
@@ -299,9 +302,44 @@ class Group(Controler):
         print("=" * 80)
 
 
+def printUsage():
+    print()
+    print('Użycie:')
+    print('    program -f=filepath [-l={pl|en}] [-n=numberOfKeywords]')
+    exit(-1)
+
+
 if __name__ == '__main__':
-    """Test data for groupClass.py"""
-    I2 = Group()
+    language = 'pl'
+    numberOfKeywords = 20
+    filePath = None
+
+    for arg in sys.argv[1:]:
+        arg = arg.split('=')
+        command = arg[0]
+        value = arg[1]
+        if command == '-l':
+            if value in ['pl', 'en']:
+                language = value
+            else:
+                print('Nieobsługiwana stała języka {0}'.format(value))
+                printUsage()
+        elif command == '-n':
+            if str(value).isdecimal():
+                numberOfKeywords = int(value)
+            else:
+                print('number of keywords musi być liczbą, a jest: {0}'.format(value))
+                printUsage()
+        elif command == '-f':
+            filePath = value
+        else:
+            print('Nieobsługiwany parametr wejściowy {0}'.format(command))
+            printUsage()
+        if filePath is None:
+            print('Nie podano pliku wejściowego')
+            printUsage()
+
+    I2 = Group(filePath, language)
     I2.readFromStopWords()
     I2.readFile()
     I2.splitText()
@@ -315,4 +353,4 @@ if __name__ == '__main__':
     # I2.printMatrix()
     I2.chiKwadrat()
     # I2.outPutJSDval()
-    I2.printResults()
+    I2.printResults(numberOfKeywords)
