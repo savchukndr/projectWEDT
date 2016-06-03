@@ -1,21 +1,20 @@
 import subprocess
 from encodings import utf_8
 
-import sys
 from nltk.stem.porter import PorterStemmer
 from numpy.linalg import norm
 from scipy.stats import entropy
 
-from controler import Controler
+from controller.Controller import Controller
 from domain.Sentence import Sentence
 from domain.Term import Term
 
 
-class Group(Controler):
+class Groupping(Controller):
     """Class Group"""
 
     def __init__(self, file, lang='pl'):
-        Controler.__init__(self, file=file)
+        Controller.__init__(self, file=file)
         self.language = lang
         self.special_characters = ['.', '!', '?', ',', '"', '\'', ')', '(', '-', '–', ':', ';']
         self.end_of_sentence_characters = ['.', '!', '?']
@@ -32,7 +31,7 @@ class Group(Controler):
         self.coocurenceMatrix = None  # Matrix
         self.termSentencesTotalSize = []  # counts all terms in sentence where a term occurs
         self.chi2Values = []  # list of tuples (word, values of chi squared)
-        if language == 'pl':
+        if self.language == 'pl':
             self.morfeuszProcess = subprocess.Popen(['morfeusz_bin\morfeusz_analyzer.exe', '-c', 'UTF8'],
                                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                                     bufsize=1)
@@ -50,8 +49,8 @@ class Group(Controler):
         """Split string, for separated words"""
         string = self.string.lower()
         self.resList = string.split()
-        self.resListSplit = Group.removeNoneSym(self.resList)
-        Group.removeStopWords(self)
+        self.resListSplit = Groupping.removeNoneSym(self.resList)
+        Groupping.removeStopWords(self)
 
     @staticmethod
     def removeNoneSym(lst):
@@ -66,7 +65,7 @@ class Group(Controler):
 
     def removeStopWords(self):
         """Remove StopWords from list"""
-        tmp = Group.removeNoneSym(self.resList)
+        tmp = Groupping.removeNoneSym(self.resList)
         resList = []
         for x in tmp:
             if x[-1] in self.end_of_sentence_characters and x[:-1] in self.stopWordsList:
@@ -189,8 +188,8 @@ class Group(Controler):
 
     def matrixOfApearanceWords(self):
         """Creating matrix"""
-        self.Dw = Group.converListTuple(self.ret)
-        self.Gw = Group.converListTuple(self.ret30percent)
+        self.Dw = Groupping.converListTuple(self.ret)
+        self.Gw = Groupping.converListTuple(self.ret30percent)
         wordToIdxDict = {}
         for i in range(len(self.ret)):
             wordToIdxDict[self.ret[i][0]] = i
@@ -278,7 +277,7 @@ class Group(Controler):
                         print(res)
                         continue
                     else:
-                        res = Group.JSD(x, y)
+                        res = Groupping.JSD(x, y)
                         countStep += 1
                         print('step = ', countStep)
                         print(res)
@@ -300,61 +299,3 @@ class Group(Controler):
                 self.chi2Values[i][1]
             ))
         print("=" * 80)
-
-
-def printUsage():
-    print()
-    print('Użycie:')
-    print('    program -f=filepath [-l={pl|en}] [-n=numberOfKeywords]')
-    exit(-1)
-
-
-if __name__ == '__main__':
-    language = 'pl'
-    numberOfKeywords = 20
-    filePath = None
-
-    for arg in sys.argv[1:]:
-        arg = arg.split('=')
-        command = arg[0]
-        value = arg[1]
-        if command == '-l':
-            if value in ['pl', 'en']:
-                language = value
-            else:
-                print('Nieobsługiwana stała języka {0}'.format(value))
-                printUsage()
-        elif command == '-n':
-            if str(value).isdecimal():
-                numberOfKeywords = int(value)
-            else:
-                print('number of keywords musi być liczbą, a jest: {0}'.format(value))
-                printUsage()
-        elif command == '-f':
-            filePath = value
-        else:
-            print('Nieobsługiwany parametr wejściowy {0}'.format(command))
-            printUsage()
-    if filePath is None:
-        print('Nie podano pliku wejściowego')
-        printUsage()
-
-    print('{0:30.30} {1}'.format('Plik:', filePath))
-    print('{0:30.30} {1}'.format('Język:', language))
-    print('{0:30.30} {1}'.format('Liczba słów kluczowych:', str(numberOfKeywords)))
-
-    I2 = Group(filePath, language)
-    I2.readFromStopWords()
-    I2.readFile()
-    I2.splitText()
-    I2.counter()
-    I2.reverseDict()
-    # print('Sorted D =', I2.ret)
-    I2.remove30percent()
-    # print('Sorted G = ', I2.ret30percent)
-    I2.groupSentence()
-    I2.matrixOfApearanceWords()
-    # I2.printMatrix()
-    I2.chiKwadrat()
-    # I2.outPutJSDval()
-    I2.printResults(numberOfKeywords)

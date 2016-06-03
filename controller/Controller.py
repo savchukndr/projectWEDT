@@ -2,8 +2,9 @@ from collections import OrderedDict
 from encodings import utf_8
 
 
-class Controler:
-    '''Main class in project'''
+class Controller:
+    """Main class in project"""
+
     def __init__(self, file):
         self.Dict = {}  # Dictionary [key=word:value=count]
         self.file = file
@@ -40,8 +41,8 @@ class Controler:
 
 
 if __name__ == '__main__':
-    '''Test data for controler.py'''
-    I1 = Controler('textfiles\\text.txt')
+    '''Test data for Controller.py'''
+    I1 = Controller('textfiles\\text.txt')
     I1.readFile()
     I1.counter()
     I1.reverseDict()
