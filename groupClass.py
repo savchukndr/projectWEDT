@@ -121,7 +121,7 @@ class Group(Controler):
                 return inputWord
 
         stemmed = self.getMorfeuszStemmedWord(line)
-        print("STEM {0:10.10s} -> {1:10.10s}".format(inputWord, stemmed))
+        # print("STEM {0:10.10s} -> {1:10.10s}".format(inputWord, stemmed))
         return stemmed
 
     def writeLineToMorfeusz(self, x):
@@ -203,7 +203,7 @@ class Group(Controler):
                     g_idx = wordToIdxDict[sameSentenceTerm.word]
                     if sameSentenceTerm.word != wTerm.word and g_idx < len(self.Gw):
                         self.coocurenceMatrix[w_idx][g_idx] += 1
-        print(self.termSentencesTotalSize)
+        # print(self.termSentencesTotalSize)
 
     def printMatrix(self):
         """Output matrix"""
@@ -228,13 +228,6 @@ class Group(Controler):
 
     def chiKwadrat(self):
         """Custom chi-square function, as in article"""
-        Dc = []  # Dc = [2, 2, 2] from D = [('konczy', 2), ('sie', 2), ('zdanie', 2)]
-        for (i, j) in self.ret30percent:
-            Dc.append(j)
-        print()
-        print('D =', self.coocurenceMatrix)
-        print('Dc =', Dc)
-        print()
         # noinspection PyUnusedLocal
         for w_idx in range(len(self.coocurenceMatrix)):
             w = self.coocurenceMatrix[w_idx]
@@ -242,7 +235,6 @@ class Group(Controler):
             chi2MaxComponent = 0
             for g_idx in range(len(w)):
                 fwg = w[g_idx]  # freq(w, g), liczba współwystępowań słów w i g w zdaniach
-
                 nwpg = self.termSentencesTotalSize[w_idx] * self.termSentencesTotalSize[g_idx] / len(self.termList)
                 chi2Component = ((fwg - nwpg) ** 2) / nwpg
                 chi2Value += chi2Component
@@ -250,9 +242,8 @@ class Group(Controler):
                     chi2MaxComponent = chi2Component
             chi2Value -= chi2MaxComponent
             self.chi2Values.append((self.ret[w_idx][0], chi2Value))
-        print()
         self.chi2Values.sort(key=lambda x: x[1], reverse=True)
-        print(self.chi2Values)
+        # print(self.chi2Values)
 
     @staticmethod
     def JSD(P, Q):
@@ -291,10 +282,20 @@ class Group(Controler):
 
     def printResults(self):
         print("=" * 80)
-        print("Słowa kluczowe:")
+        print("{0:>3.3s}  {1:20.20s} {2:>12.12s} {3:>10.10s}".format(
+            'Lp',
+            'Słowo kluczowe',
+            'Wystąpienia',
+            'chi^2'
+        ))
         print("=" * 80)
         for i in range(20):
-            print("{0:3d}. {1}".format(i + 1, self.chi2Values[i][0]))
+            print("{0:3d}. {1:20.20s} {2:12d} {3:10.2f}".format(
+                i + 1,
+                self.chi2Values[i][0],
+                self.Dict[self.chi2Values[i][0]],
+                self.chi2Values[i][1]
+            ))
         print("=" * 80)
 
 
@@ -305,13 +306,10 @@ if __name__ == '__main__':
     I2.readFile()
     I2.splitText()
     I2.counter()
-    print()
     I2.reverseDict()
-    print('Sorted D =', I2.ret)
-    print()
+    # print('Sorted D =', I2.ret)
     I2.remove30percent()
-    print('Sorted G = ', I2.ret30percent)
-    print()
+    # print('Sorted G = ', I2.ret30percent)
     I2.groupSentence()
     I2.matrixOfApearanceWords()
     # I2.printMatrix()
