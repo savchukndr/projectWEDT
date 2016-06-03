@@ -16,7 +16,7 @@ class Group(Controler):
     def __init__(self, language='pl'):
         Controler.__init__(self, file='textfiles\\text.txt')
         self.language = language
-        self.special_characters = ['.', '!', '?', ',', '"', '\'', ')', '(', '-', '–']
+        self.special_characters = ['.', '!', '?', ',', '"', '\'', ')', '(', '-', '–', ':', ';']
         self.end_of_sentence_characters = ['.', '!', '?']
         self.resList = None  # List without dots and etc. and without stopWords
         self.stopWordsList = None  # StopWord list
@@ -32,9 +32,9 @@ class Group(Controler):
         self.termSentencesTotalSize = []  # counts all terms in sentence where a term occurs
         self.chi2Values = []  # list of tuples (word, values of chi squared)
         self.porterStemmer = PorterStemmer()  # stemmer for english
-        self.morfeuszProcess = subprocess.Popen(['morfeusz_bin\morfeusz_analyzer.exe'],
+        self.morfeuszProcess = subprocess.Popen(['morfeusz_bin\morfeusz_analyzer.exe', '-c', 'UTF8'],
                                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                                universal_newlines=True, bufsize=1)
+                                                bufsize=1)
 
     def readFromStopWords(self):
         """Reading words from stopwords.txt"""
@@ -95,13 +95,32 @@ class Group(Controler):
                 word = word[:-1]
             self.resList.append(word)
 
-    def stemAWord(self, x):
+    def stemAWord(self, x: str):
         if self.language == 'pl':
-            self.morfeuszProcess.stdin.write(x + "\n")
-            line = self.morfeuszProcess.stdout.readline()
-            while not line.endswith(']\n'):
-                line = self.morfeuszProcess.stdout.readline()
-            return x  # TODO parse morfeusz output
+            self.morfeuszProcess.stdin.write(utf_8.encode(x + "\n")[0])
+            self.morfeuszProcess.stdin.flush()
+
+            readBytes = self.morfeuszProcess.stdout.readline()
+            line = utf_8.decode(readBytes, errors='ignore')[0]
+            morfeuszInputAssumption = line.split(',')[2].split(':')[0]
+            if morfeuszInputAssumption != x:
+                # pominięcie wyników z tej samej sekcji
+                while not (line.endswith(']\r') or line.endswith(']\n') or line.endswith(']\r\n') or line.endswith(']\n\r')):
+                    readBytes = self.morfeuszProcess.stdout.readline()
+                    line = utf_8.decode(readBytes, errors='ignore')[0]
+                # hack np. na wyraz "gdybym", "czym", który dostaje 2 outputy
+                readBytes = self.morfeuszProcess.stdout.readline()
+                line = utf_8.decode(readBytes, errors='ignore')[0]
+                morfeuszInputAssumption = line.split(',')[2].split(':')[0]
+                if morfeuszInputAssumption != x:
+                    return x
+
+            stemmed = line.split(',')[3].split(':')[0]  # bierzemy tylko pierwszy wynik z listy
+            while not (line.endswith(']\r') or line.endswith(']\n') or line.endswith(']\r\n') or line.endswith(']\n\r')):
+                readBytes = self.morfeuszProcess.stdout.readline()
+                line = utf_8.decode(readBytes, errors='ignore')[0]
+            print("STEM {0:10.10s} -> {1:10.10s}".format(x, stemmed))
+            return stemmed
         else:
             return self.porterStemmer.stem(x)
 
@@ -264,6 +283,6 @@ if __name__ == '__main__':
     print()
     I2.groupSentence()
     I2.matrixOfApearanceWords()
-    I2.printMatrix()
+    # I2.printMatrix()
     I2.chiKwadrat()
     # I2.outPutJSDval()
