@@ -130,7 +130,7 @@ class Group(Controler):
 
     def readLineFromMorfeusz(self):
         readBytes = self.morfeuszProcess.stdout.readline()
-        line = utf_8.decode(readBytes, errors='ignore')[0]
+        line = utf_8.decode(readBytes, errors='replace')[0]
         return line
 
     def skipResultsWithinSameSection(self, line):
