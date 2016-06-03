@@ -335,9 +335,9 @@ if __name__ == '__main__':
         else:
             print('Nieobsługiwany parametr wejściowy {0}'.format(command))
             printUsage()
-        if filePath is None:
-            print('Nie podano pliku wejściowego')
-            printUsage()
+    if filePath is None:
+        print('Nie podano pliku wejściowego')
+        printUsage()
 
     I2 = Group(filePath, language)
     I2.readFromStopWords()
