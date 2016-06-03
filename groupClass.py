@@ -81,6 +81,8 @@ class Group(Controler):
                     suffix = x[-1] + suffix
                     x = x[:-1]
                 x_stemmed = self.stemAWord(x)
+                if x_stemmed in self.stopWordsList:
+                    continue
                 x_stemmed = prefix + x_stemmed + suffix  # restore special characters for sentence end retrieving
                 resList.append(x_stemmed)
 
@@ -271,7 +273,7 @@ class Group(Controler):
         print("Słowa kluczowe:")
         print("=" * 80)
         for i in range(20):
-            print("{0:3d}. {1}".format(i, self.chi2Values[i][0]))
+            print("{0:3d}. {1}".format(i + 1, self.chi2Values[i][0]))
         print("=" * 80)
 
 
