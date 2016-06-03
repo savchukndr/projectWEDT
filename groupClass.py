@@ -339,6 +339,10 @@ if __name__ == '__main__':
         print('Nie podano pliku wejściowego')
         printUsage()
 
+    print('{0:30.30} {1}'.format('Plik:', filePath))
+    print('{0:30.30} {1}'.format('Język:', language))
+    print('{0:30.30} {1}'.format('Liczba słów kluczowych:', str(numberOfKeywords)))
+
     I2 = Group(filePath, language)
     I2.readFromStopWords()
     I2.readFile()
