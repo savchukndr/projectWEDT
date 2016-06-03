@@ -266,6 +266,14 @@ class Group(Controler):
                         print('step = ', countStep)
                         print(res)
 
+    def printResults(self):
+        print("=" * 80)
+        print("Słowa kluczowe:")
+        print("=" * 80)
+        for i in range(20):
+            print("{0:3d}. {1}".format(i, self.chi2Values[i][0]))
+        print("=" * 80)
+
 
 if __name__ == '__main__':
     """Test data for groupClass.py"""
@@ -286,3 +294,4 @@ if __name__ == '__main__':
     # I2.printMatrix()
     I2.chiKwadrat()
     # I2.outPutJSDval()
+    I2.printResults()
