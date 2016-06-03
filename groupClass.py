@@ -97,34 +97,55 @@ class Group(Controler):
                 word = word[:-1]
             self.resList.append(word)
 
-    def stemAWord(self, x: str):
+    def stemAWord(self, x: str) -> str:
         if self.language == 'pl':
-            self.morfeuszProcess.stdin.write(utf_8.encode(x + "\n")[0])
-            self.morfeuszProcess.stdin.flush()
-
-            readBytes = self.morfeuszProcess.stdout.readline()
-            line = utf_8.decode(readBytes, errors='ignore')[0]
-            morfeuszInputAssumption = line.split(',')[2].split(':')[0]
-            if morfeuszInputAssumption != x:
-                # pominięcie wyników z tej samej sekcji
-                while not (line.endswith(']\r') or line.endswith(']\n') or line.endswith(']\r\n') or line.endswith(']\n\r')):
-                    readBytes = self.morfeuszProcess.stdout.readline()
-                    line = utf_8.decode(readBytes, errors='ignore')[0]
-                # hack np. na wyraz "gdybym", "czym", który dostaje 2 outputy
-                readBytes = self.morfeuszProcess.stdout.readline()
-                line = utf_8.decode(readBytes, errors='ignore')[0]
-                morfeuszInputAssumption = line.split(',')[2].split(':')[0]
-                if morfeuszInputAssumption != x:
-                    return x
-
-            stemmed = line.split(',')[3].split(':')[0]  # bierzemy tylko pierwszy wynik z listy
-            while not (line.endswith(']\r') or line.endswith(']\n') or line.endswith(']\r\n') or line.endswith(']\n\r')):
-                readBytes = self.morfeuszProcess.stdout.readline()
-                line = utf_8.decode(readBytes, errors='ignore')[0]
-            print("STEM {0:10.10s} -> {1:10.10s}".format(x, stemmed))
-            return stemmed
+            return self.stemWithMorfeusz(x)
         else:
             return self.porterStemmer.stem(x)
+
+    def stemWithMorfeusz(self, inputWord: str) -> str:
+        self.writeLineToMorfeusz(inputWord)
+        line = self.readLineFromMorfeusz()
+        morfeuszInputAssumption = self.getMorfeuszInputAssumption(line)
+
+        # hack np. na wyraz "gdybym", "czym", który dostaje 2 outputy
+        if morfeuszInputAssumption != inputWord:
+            # na wszelki wypadek (np. wyraz "al-islam")
+            self.skipResultsWithinSameSection(line)
+            # odczytanie "następnego" wyniku, ale tak na prawdę, to bieżącego, bo te złe assumption było z poprzedniego
+            line = self.readLineFromMorfeusz()
+            # sprawdzamy po raz drugi i ostatni czy assumption jest ok
+            morfeuszInputAssumption = self.getMorfeuszInputAssumption(line)
+            if morfeuszInputAssumption != inputWord:
+                # jeśli nadal nie, to trudno, nie stemujemy (np. wyraz "gdybym")
+                return inputWord
+
+        stemmed = self.getMorfeuszStemmedWord(line)
+        print("STEM {0:10.10s} -> {1:10.10s}".format(inputWord, stemmed))
+        return stemmed
+
+    def writeLineToMorfeusz(self, x):
+        self.morfeuszProcess.stdin.write(utf_8.encode(x + "\n")[0])
+        self.morfeuszProcess.stdin.flush()
+
+    def readLineFromMorfeusz(self):
+        readBytes = self.morfeuszProcess.stdout.readline()
+        line = utf_8.decode(readBytes, errors='ignore')[0]
+        return line
+
+    def skipResultsWithinSameSection(self, line):
+        while not (line.endswith(']\r') or line.endswith(']\n') or line.endswith(']\r\n') or line.endswith(']\n\r')):
+            line = self.readLineFromMorfeusz()
+
+    def getMorfeuszStemmedWord(self, line):
+        stemmed = line.split(',')[3].split(':')[0]  # bierzemy tylko pierwszy wynik
+        self.skipResultsWithinSameSection(line)
+        return stemmed
+
+    @staticmethod
+    def getMorfeuszInputAssumption(line):
+        morfeuszInputAssumption = line.split(',')[2].split(':')[0]
+        return morfeuszInputAssumption
 
     def groupSentence(self):
         """Divide words for terms and then for sentences"""
