@@ -1,3 +1,4 @@
+import subprocess
 from encodings import utf_8
 
 from nltk.stem.porter import PorterStemmer
@@ -30,6 +31,10 @@ class Group(Controler):
         self.coocurenceMatrix = None  # Matrix
         self.termSentencesTotalSize = []  # counts all terms in sentence where a term occurs
         self.chi2Values = []  # list of tuples (word, values of chi squared)
+        self.porterStemmer = PorterStemmer()  # stemmer for english
+        self.morfeuszProcess = subprocess.Popen(['morfeusz_bin\morfeusz_analyzer.exe'],
+                                                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                                universal_newlines=True, bufsize=1)
 
     def readFromStopWords(self):
         """Reading words from stopwords.txt"""
@@ -60,7 +65,6 @@ class Group(Controler):
         """Remove StopWords from list"""
         tmp = Group.removeNoneSym(self.resList)
         resList = []
-        stemmer = PorterStemmer()
         for x in tmp:
             if x[-1] in self.end_of_sentence_characters and x[:-1] in self.stopWordsList:
                 if len(resList) > 0:
@@ -76,8 +80,7 @@ class Group(Controler):
                 while len(x) >= 1 and x[-1] in self.special_characters:
                     suffix = x[-1] + suffix
                     x = x[:-1]
-                x_stemmed = x if self.language == 'pl' else stemmer.stem(x)
-                # x_stemmed = morfeusz.analyse(x)
+                x_stemmed = self.stemAWord(x)
                 x_stemmed = prefix + x_stemmed + suffix  # restore special characters for sentence end retrieving
                 resList.append(x_stemmed)
 
@@ -91,6 +94,16 @@ class Group(Controler):
             while len(word) >= 1 and word[-1] in self.special_characters:
                 word = word[:-1]
             self.resList.append(word)
+
+    def stemAWord(self, x):
+        if self.language == 'pl':
+            self.morfeuszProcess.stdin.write(x + "\n")
+            line = self.morfeuszProcess.stdout.readline()
+            while not line.endswith(']\n'):
+                line = self.morfeuszProcess.stdout.readline()
+            return x  # TODO parse morfeusz output
+        else:
+            return self.porterStemmer.stem(x)
 
     def groupSentence(self):
         """Divide words for terms and then for sentences"""
